@@ -1,0 +1,25 @@
+{
+  "name": "document-converter",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Convert documents between DOCX, PDF, HTML, Markdown, TXT, CSV, JSON and XLSX — entirely in the browser.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "docx": "^9.5.1",
+    "jspdf": "^3.0.3",
+    "mammoth": "^1.11.0",
+    "marked": "^16.4.0",
+    "papaparse": "^5.5.3",
+    "pdfjs-dist": "^4.10.38",
+    "turndown": "^7.2.2",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "vite": "^7.1.5"
+  }
+}

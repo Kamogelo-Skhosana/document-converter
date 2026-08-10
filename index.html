@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document Converter</title>
+    <meta name="description" content="Convert DOCX, PDF, HTML, Markdown, TXT, CSV, JSON and XLSX files in your browser." />
+  </head>
+  <body>
+    <div class="app">
+      <header class="app__header">
+        <div>
+          <h1>Document Converter</h1>
+          <p>DOCX · PDF · HTML · Markdown · TXT · CSV · JSON · XLSX — converted locally, never uploaded.</p>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel">
+          <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose files">
+            <strong>Drop files here</strong>
+            <span>or click to browse — you can add several at once</span>
+            <input id="fileInput" type="file" multiple hidden
+                   accept=".docx,.pdf,.html,.htm,.md,.markdown,.txt,.csv,.tsv,.json,.xlsx,.xls" />
+          </div>
+
+          <ul class="files" id="files"></ul>
+
+          <div class="convert-bar">
+            <label class="field">
+              <span>Convert to</span>
+              <select id="target"></select>
+            </label>
+            <button class="btn" id="convert" type="button" disabled>Convert</button>
+            <button class="btn btn--ghost" id="clear" type="button">Clear all</button>
+          </div>
+
+          <p class="status" id="status">Add a file to begin.</p>
+
+          <ul class="results" id="results"></ul>
+        </section>
+
+        <section class="panel preview-panel">
+          <div class="preview-panel__head">
+            <h2>Preview</h2>
+            <div class="seg" id="previewMode">
+              <button class="seg__btn is-active" data-view="rendered" type="button">Rendered</button>
+              <button class="seg__btn" data-view="source" type="button">Source</button>
+            </div>
+          </div>
+          <div class="preview" id="preview">
+            <p class="preview__empty">Select a file to see what was read out of it.</p>
+          </div>
+
+          <aside class="ad ad--rail" data-ad="rail" aria-label="Advertisement"></aside>
+        </section>
+      </main>
+
+      <section class="panel matrix-panel">
+        <h2>What converts into what</h2>
+        <div class="matrix" id="matrix"></div>
+      </section>
+
+      <aside class="ad ad--leaderboard" data-ad="leaderboard" aria-label="Advertisement"></aside>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
