@@ -1,68 +1,166 @@
 <!doctype html>
-<html lang="en">
+<!--
+  data-theme is set here rather than left to the engine: the attribute is on the
+  element before the first byte of CSS is parsed, so the page never paints one
+  theme and then swaps. The engine writes the matching custom properties on
+  startup (src/theme.js).
+-->
+<html lang="en" data-theme="basic-mono">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document Converter</title>
     <meta name="description" content="Convert DOCX, PDF, HTML, Markdown, TXT, CSV, JSON and XLSX files in your browser." />
+    <meta name="theme-color" content="#ffffff" />
   </head>
   <body>
     <div class="app">
-      <header class="app__header">
-        <div>
-          <h1>Document Converter</h1>
-          <p>DOCX · PDF · HTML · Markdown · TXT · CSV · JSON · XLSX — converted locally, never uploaded.</p>
+      <!-- ------------------------------------------------------------ appbar -->
+      <header class="appbar">
+        <span class="appbar__icon" aria-hidden="true">
+          <svg viewBox="0 0 40 40">
+            <!-- Themed rather than fixed: the icon reads from the same tokens
+                 as everything else, so it can't be the one Google-blue thing
+                 left on a page that is otherwise black-and-white. -->
+            <path d="M9 3.5h14.5L33 13v22a2.5 2.5 0 0 1-2.5 2.5h-21A2.5 2.5 0 0 1 7 35V6a2.5 2.5 0 0 1 2-2.5z" fill="var(--accent)" />
+            <path d="M23.5 3.5 33 13h-9.5z" fill="var(--blue-bright)" />
+            <path d="M13 19h14M13 24h14M13 29h9" stroke="var(--accent-ink)" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </span>
+
+        <div class="appbar__titles">
+          <div class="appbar__title-row">
+            <h1 class="doctitle">Document Converter</h1>
+            <span class="pill-tag">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>
+              On this device
+            </span>
+          </div>
+
+          <nav class="menubar" id="menubar" aria-label="Menu">
+            <div class="menubar__group">
+              <button class="menubar__item" data-menu="file" type="button">File</button>
+              <div class="menu" data-menu-panel="file" hidden>
+                <button class="menu__item" data-do="add" type="button">Add files…</button>
+                <button class="menu__item" data-do="clear" type="button">Clear all</button>
+                <hr />
+                <button class="menu__item" data-do="discard" type="button">Discard my edits</button>
+                <button class="menu__item" data-do="convert" type="button">Convert</button>
+              </div>
+            </div>
+
+            <div class="menubar__group">
+              <button class="menubar__item" data-menu="convert" type="button">Convert</button>
+              <div class="menu" data-menu-panel="convert" hidden>
+                <div class="menu__list" id="targetMenu"></div>
+                <hr />
+                <button class="menu__item" data-do="convert" type="button">Convert now</button>
+              </div>
+            </div>
+
+            <div class="menubar__group">
+              <button class="menubar__item" data-menu="view" type="button">View</button>
+              <div class="menu" data-menu-panel="view" hidden>
+                <button class="menu__item is-checked" data-do="edit" type="button">Edit the document</button>
+                <button class="menu__item" data-do="compare" type="button">Before and after</button>
+                <button class="menu__item" data-do="source" type="button">Source</button>
+              </div>
+            </div>
+
+            <div class="menubar__group">
+              <button class="menubar__item" data-menu="help" type="button">Help</button>
+              <div class="menu" data-menu-panel="help" hidden>
+                <button class="menu__item" data-do="formats" type="button">What converts into what…</button>
+              </div>
+            </div>
+
+            <p class="status" id="status">Add a file to begin.</p>
+          </nav>
+        </div>
+
+        <div class="appbar__actions">
+          <button class="icon-btn" id="formatsBtn" type="button" title="What converts into what" aria-label="Format support">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.2 2.9c-.5.2-.8.7-.8 1.2v.6"/><path d="M12 17.2v.4"/></svg>
+          </button>
+          <button class="btn btn--primary" id="convert" type="button" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h13l-3.2-3.2"/><path d="M20 16H7l3.2 3.2"/></svg>
+            Convert
+          </button>
         </div>
       </header>
 
-      <main class="layout">
-        <section class="panel">
-          <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose files">
-            <strong>Drop files here</strong>
-            <span>or click to browse — you can add several at once</span>
-            <input id="fileInput" type="file" multiple hidden
-                   accept=".docx,.pdf,.html,.htm,.md,.markdown,.txt,.csv,.tsv,.json,.xlsx,.xls" />
+      <!-- ----------------------------------------------------------- toolbar -->
+      <div class="toolbar-row">
+        <div class="toolbar" role="toolbar" aria-label="Actions">
+          <button class="tbtn" id="addBtn" type="button" title="Add files" aria-label="Add files">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 3.5H7.5A1.5 1.5 0 0 0 6 5v14a1.5 1.5 0 0 0 1.5 1.5h9A1.5 1.5 0 0 0 18 19V8z"/><path d="M13.5 3.5V8H18"/><path d="M12 17v-5"/><path d="M9.7 14.3 12 12l2.3 2.3"/></svg>
+          </button>
+          <button class="tbtn" id="clear" type="button" title="Clear all" aria-label="Clear all">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14"/><path d="M10 7V5.5h4V7"/><path d="M6.5 7l.8 12a1.5 1.5 0 0 0 1.5 1.4h6.4a1.5 1.5 0 0 0 1.5-1.4l.8-12"/><path d="M10.5 10.5v6.5M13.5 10.5v6.5"/></svg>
+          </button>
+
+          <span class="tsep" aria-hidden="true"></span>
+
+          <select id="target" aria-label="Output format"></select>
+
+          <span class="tsep" aria-hidden="true"></span>
+
+          <div class="seg" id="previewMode" role="group" aria-label="Preview mode">
+            <button class="seg__btn is-active" data-view="edit" type="button" title="Edit the document" aria-label="Edit">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19h3l9.5-9.5-3-3L5 16z"/><path d="M14.5 6.5l3 3"/></svg>
+            </button>
+            <button class="seg__btn" data-view="compare" type="button" title="Before and after" aria-label="Before and after">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5h7v15H4zM13 4.5h7v15h-7z"/></svg>
+            </button>
+            <button class="seg__btn" data-view="source" type="button" title="Source" aria-label="Source">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8.5 5.5 12 9 15.5"/><path d="M15 8.5 18.5 12 15 15.5"/></svg>
+            </button>
           </div>
+        </div>
+      </div>
 
-          <ul class="files" id="files"></ul>
-
-          <div class="convert-bar">
-            <label class="field">
-              <span>Convert to</span>
-              <select id="target"></select>
-            </label>
-            <button class="btn" id="convert" type="button" disabled>Convert</button>
-            <button class="btn btn--ghost" id="clear" type="button">Clear all</button>
-          </div>
-
-          <p class="status" id="status">Add a file to begin.</p>
-
-          <ul class="results" id="results"></ul>
-        </section>
-
-        <section class="panel preview-panel">
-          <div class="preview-panel__head">
-            <h2>Preview</h2>
-            <div class="seg" id="previewMode">
-              <button class="seg__btn is-active" data-view="rendered" type="button">Rendered</button>
-              <button class="seg__btn" data-view="source" type="button">Source</button>
+      <!-- --------------------------------------------------------- workspace -->
+      <div class="workspace">
+        <aside class="sidebar" aria-label="Files">
+          <div class="sidebar__scroll">
+            <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose files">
+              <svg class="drop__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4.5"/><path d="M8 8.5 12 4.5l4 4"/><path d="M4.5 15v3.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V15"/></svg>
+              <strong>Drop files here</strong>
+              <span>or click to browse — several at once</span>
+              <input id="fileInput" type="file" multiple hidden
+                     accept=".docx,.pdf,.html,.htm,.md,.markdown,.txt,.csv,.tsv,.json,.xlsx,.xls" />
             </div>
-          </div>
-          <div class="preview" id="preview">
-            <p class="preview__empty">Select a file to see what was read out of it.</p>
+
+            <h2 class="sidebar__head">Files</h2>
+            <ul class="files" id="files"></ul>
+
+            <h2 class="sidebar__head">Converted</h2>
+            <ul class="results" id="results"></ul>
           </div>
 
           <aside class="ad ad--rail" data-ad="rail" aria-label="Advertisement"></aside>
-        </section>
-      </main>
+        </aside>
 
-      <section class="panel matrix-panel">
-        <h2>What converts into what</h2>
-        <div class="matrix" id="matrix"></div>
-      </section>
+        <main class="canvas">
+          <div class="preview" id="preview"></div>
+        </main>
+      </div>
+    </div>
 
+    <div class="promo">
       <aside class="ad ad--leaderboard" data-ad="leaderboard" aria-label="Advertisement"></aside>
     </div>
+
+    <!-- Support matrix. `method="dialog"` closes it without a handler. -->
+    <dialog class="modal" id="formatsModal" aria-labelledby="formatsTitle">
+      <form method="dialog">
+        <h2 id="formatsTitle">What converts into what</h2>
+        <div class="matrix" id="matrix"></div>
+        <div class="modal__actions">
+          <button class="btn btn--text" type="submit">Got it</button>
+        </div>
+      </form>
+    </dialog>
 
     <script type="module" src="/src/main.js"></script>
   </body>

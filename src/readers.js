@@ -32,6 +32,29 @@ export function tableToHtml({ columns, rows }) {
   return `<table>${head}<tbody>${body}</tbody></table>`
 }
 
+/**
+ * Reads a table back out of HTML — the inverse of `tableToHtml`. Editing the
+ * page rewrites `doc.html`, so tabular output (CSV, JSON, XLSX) has to be
+ * re-derived from the edited markup rather than the stale parse.
+ */
+export function tableFromHtml(html) {
+  const dom = new DOMParser().parseFromString(`<body>${html}</body>`, 'text/html')
+  const table = dom.querySelector('table')
+  if (!table) return null
+
+  const rows = [...table.querySelectorAll('tr')].map((tr) =>
+    [...tr.querySelectorAll('th, td')].map((cell) => (cell.textContent ?? '').trim()),
+  )
+  if (!rows.length) return null
+
+  const [header, ...body] = rows
+  const columns = header.map((name, index) => name || `Column ${index + 1}`)
+  return {
+    columns,
+    rows: body.map((row) => Object.fromEntries(columns.map((name, index) => [name, row[index] ?? '']))),
+  }
+}
+
 export function cellText(value) {
   if (value === null || value === undefined) return ''
   if (typeof value === 'object') return JSON.stringify(value)
@@ -182,5 +205,10 @@ export async function readFile(file) {
   if (!reader) throw new Error(`${raw.toUpperCase() || 'This file type'} is not supported as an input.`)
 
   const parsed = await reader(file)
-  return { name: file.name, size: file.size, ext, table: null, source: '', ...parsed }
+  const doc = { name: file.name, size: file.size, ext, table: null, source: '', edited: false, ...parsed }
+
+  // Kept so edits made on the page can always be discarded.
+  doc.originalHtml = doc.html
+  doc.originalTable = doc.table
+  return doc
 }

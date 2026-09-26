@@ -3,6 +3,11 @@
 Convert documents between formats without uploading them anywhere — every parser
 and writer runs in the browser.
 
+The interface follows Google Docs: app bar with a title and menu row, the rounded
+toolbar tray, a file sidebar where Docs keeps the outline, and the preview rendered
+as a letter-sized page on a blue-grey canvas. Menu items are second routes to the
+toolbar actions, never decoration.
+
 ## Run
 
 ```bash
@@ -30,7 +35,7 @@ Drop several files at once — the format list narrows to the outputs every file
 ## How it works
 
 1. **Read** — each input is parsed into HTML (documents) or rows + columns (tabular data).
-2. **Preview** — see exactly what was extracted, rendered or as source.
+2. **Preview** — see exactly what was extracted on the page, rendered or as source.
 3. **Write** — HTML is flattened into blocks (headings, paragraphs, lists, quotes, code,
    tables) and rewritten into the target format.
 

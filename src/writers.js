@@ -33,7 +33,9 @@ function domTableToMarkdown(node) {
 }
 
 async function toMarkdown(doc) {
-  if (doc.ext === 'md' && doc.source) return doc.source
+  // Passing the original source straight through is only safe while it still
+  // matches the document — an edit on the page makes it stale.
+  if (doc.ext === 'md' && doc.source && !doc.edited) return doc.source
   if (doc.table) return tableToMarkdown(doc.table)
 
   const TurndownService = (await import('turndown')).default
@@ -300,11 +302,9 @@ export async function convert(doc, target) {
       text = await toMarkdown(doc)
       break
     case 'txt':
-      text = doc.table
-        ? blocksToText(htmlToBlocks(doc.html))
-        : doc.source && doc.ext === 'txt'
-          ? doc.source
-          : blocksToText(htmlToBlocks(doc.html || ''))
+      text = !doc.table && doc.source && doc.ext === 'txt' && !doc.edited
+        ? doc.source
+        : blocksToText(htmlToBlocks(doc.html || ''))
       break
     case 'csv':
       text = await toCsv(doc)
