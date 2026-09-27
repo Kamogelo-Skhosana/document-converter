@@ -1,5 +1,5 @@
 import './style.css'
-import '@polytheme/themes-classic/flourishes.css'
+import '@themeloom/themes-classic/flourishes.css'
 import './theme.js'
 import { mountAds } from './ads.js'
 import { readFile, sanitiseHtml, escapeHtml, tableFromHtml, tableToHtml } from './readers.js'

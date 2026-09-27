@@ -1,8 +1,8 @@
-import { ThemeEngine } from '@polytheme/core'
-import { basicMono } from '@polytheme/themes-classic'
+import { ThemeEngine } from '@themeloom/core'
+import { basicMono } from '@themeloom/themes-classic'
 
 /**
- * The app runs on one polytheme theme rather than a hand-rolled palette.
+ * The app runs on one themeloom theme rather than a hand-rolled palette.
  *
  * A theme is a whole design contract — colour, type, shape and motion — so
  * style.css maps its own variables onto the `--pt-*` custom properties the

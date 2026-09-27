@@ -10,8 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@polytheme/core": "file:../polytheme/packages/core",
-    "@polytheme/themes-classic": "file:../polytheme/packages/themes-pack-classic",
+    "@themeloom/core": "file:../themeloom/packages/core",
+    "@themeloom/themes-classic": "file:../themeloom/packages/themes-pack-classic",
     "docx": "^9.5.1",
     "jspdf": "^3.0.3",
     "mammoth": "^1.11.0",
