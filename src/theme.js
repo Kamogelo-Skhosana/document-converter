@@ -1,5 +1,5 @@
 import { ThemeEngine } from '@themeloom/core'
-import { basicMono } from '@themeloom/themes-classic'
+import { minimalism } from '@themeloom/themes-classic'
 
 /**
  * The app runs on one themeloom theme rather than a hand-rolled palette.
@@ -14,7 +14,7 @@ import { basicMono } from '@themeloom/themes-classic'
  * rules describe the file being converted, not the app around it, so theming
  * them would misrepresent what actually gets exported.
  */
-export const theme = basicMono
+export const theme = minimalism
 
 export const engine = new ThemeEngine({
   themes: [theme],
